@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 	<title>returnTrue</title>
 	<!-- Bootstrap -->
 	<link href="css/bootstrap.min.css" rel="stylesheet"	media="screen">
@@ -9,36 +10,72 @@
 <body>
 	<div class = "row">
 		<div class = "col-md-6 col-md-offset-3">
+		<p id="demo"></p>
+		<?php
+			$m = new MongoClient();
+   			$db = $m -> hindu;
+   			$collection = $db -> chennai;
+			$query = $_POST["query"];
+			$params = array('$text' => array('$search' => $query));
+			$result = $collection -> find($params);
+			foreach($result as $res)
+			{
+				echo $res['content'] . "<br>";
+			}
+		/*
+			$userInput = $_POST["query"];
+			$splitQuery = explode(" ", $userInput);
+			$m = new MongoClient();
+			$db = $m -> hindu;
+			$collection = $db -> categories;
+			foreach ($splitQuery as $word)
+			{
+				$condition = array("sub" => $word);
+				$cursor = $collection -> find($condition);
+				if( $cursor -> count() > 0 )
+				{
+					foreach( $cursor as $result )
+					{
+						echo $result["name"] . '&nbsp;';
+					}
+					echo "<br>";
+				}	
+			}
+		?>
 			<?php
 
-	// connect
-	$m = new MongoClient();
+				// connect
+				$m = new MongoClient();
 
-	// select a database
-	$db = $m->hindu;
+				// select a database
+				$db = $m->hindu;
 
-	// select a collection (analogous to a relational database's table)
-	$collection = $db->chennai;
+				// select a collection (analogous to a relational database's table)
+				$collection = $db->chennai;
+				$catCollection = $db->categories;
+				$query = $_POST["query"];
+				$splitQ = explode(" ", $query);
+				foreach ($splitQ as $word)
+				{
+					$condition = array( "keywords" => $word );
+					$cursor = $catCollection -> find($condition);
+					foreach ($cursor as $document)
+					{
+						$type = $document["name"];
+						$cond2 = array( "category" => $type);
+						$cursor1 = $collection->find( $cond2 );
+						
+						foreach ($cursor1 as $document1)
+						{
+	    					echo $document1["name"];
+						}
+					}
+				} 
 
-	// add a record
-	//$document = array( "title" => "Calvin and Hobbes", "author" => "Bill Watterson" );
-	//$collection->insert($document);
-
-	// add another record, with a different "shape"
-	//$document = array( "title" => "XKCD", "online" => true );
-	//$collection->insert($document);
-	$name=$_POST["query"];
-	// find everything in the collection
-	$conditions = array( "content" => new MongoRegex("/$name/"));
-	$cursor = $collection->find($conditions);
-	// iterate through the results
-	foreach ($cursor as $document) {
-	    echo $document["content"] . "\n";
-	}
-
-?>
-
+*/
+			?>
 		</div>
 	</div>
 </body>
 </html>
+
