@@ -23,11 +23,13 @@
 			$range = $_POST["range"];
 			$rating = $_POST["rating"];
 			$category = $_POST["category"];
-			$classified = array("name" => $name, "content" => $content, "city" => $city, "locality" => $locality, "range" => $range, "rating" => $rating, "category" => $category);
+			$phone = $_POST["phone"];
+			$classified = array("name" => $name, "content" => $content, "city" => $city, "locality" => $locality, "range" => $range, "rating" => $rating, "phone" => $phone, "category" => $category, "datePosted" => new MongoDate());
 			try
 			{
 				$collection -> insert($classified); 
 				echo "Success!";
+				header("Location:insertform.php");
 
 			}
 			catch(MongoCursorException $e)
