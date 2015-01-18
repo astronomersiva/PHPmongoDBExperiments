@@ -3,6 +3,10 @@ body
 	overflow-x: hidden;
 }
 
+.sort
+{
+	float: right !important;
+}
 .result
 {
 	

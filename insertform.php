@@ -19,7 +19,7 @@
     				<input type="text" name = "phone" class="form-control" placeholder="Contact Number">
     				<input type="text" name = "city" class="form-control" placeholder="City">
     				<input type="text" name = "locality" class="form-control" placeholder="Locality">
-    				<input type="text" name = "range" class="form-control" placeholder="Price range">
+    				<input type="text" name = "range" class="form-control" placeholder="Price range(Low/Medium/High)">
     				<input type="text" name = "rating" class="form-control" placeholder="Rating">
     				<select name = "category">
     					<option value="">Choose the category</option>

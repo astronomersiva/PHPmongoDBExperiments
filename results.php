@@ -13,7 +13,6 @@
 		
 		//debug flag
 		$debug = 1;
-		
 		if($debug == 1)
 		{
 			echo "Debug mode. Assign 0 to the variable \$debug
@@ -24,7 +23,14 @@
 		$m = new MongoClient();
    		$db = $m -> hindu;
    		$collection = $db -> chennai;
-		$query = $_POST["query"];
+   		if(isset($_GET['query']))
+		{
+			$query = $_GET['query'];
+		}
+		else
+		{
+			$query = $_POST["query"];
+		}
 		
 		//for location based queries 
 		$splitQuery = explode(" ", $query);
@@ -44,7 +50,6 @@
 			$location = $splitQuery[$locationIndex];
 		}
 		
-		
 		//perform  full text search and sort based on score
 		// '$text' => array('$search' => "\\" . $query . "\\")
 		// add the above line to perform full phrase.
@@ -52,21 +57,26 @@
 		//a larger dataset would make that clear
 		//if location is set
 		//-1 for descending order
+		//1 for ascending order
+		
 		if (isset($location))
 		{
 			if ($debug == 1)
 			{
 				echo "Location specified." . $location . "<br>";
 			}
+			
 			$result = $collection -> find(
 					   array('locality' => new MongoRegex("/".$location."/i"), 
 					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))->
 					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+			
 			if ($debug == 1)
 			{
 				echo $result -> count() . " Matches found<br>";
 			}
+			
 			//for city based queries		    
 			if($result -> count() == 0)
 			{
@@ -79,31 +89,58 @@
 					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))->
 					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+				echo $result -> count() . "&nbsp;Matches found";
 			}
 			
-		}	   
+		}	
+		   
 		//if location is not specified
 		else
 		{		
 			if ($debug == 1)
 			{
-				echo "No location";
+				echo "No location<br>";
 			}
 			$result = $collection -> find(
 					   array('$text' => array('$search' => "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))-> 
 					   	sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+			echo $result -> count() . "&nbsp;Matches found";
 		}	   
+		
+		
+		//sorting at client side
+		if(isset($_GET['sort']))
+		{
+			$sort = $_GET['sort'];
+			echo "<br>" . "Sorting by " . $sort;
+			switch($sort)
+			{
+				case "price-low-high": $result -> sort(array('range' => 1));
+									   break;
+				case "price-high-low": $result -> sort(array('range' => -1));
+									   break;
+				case "rating": $result -> sort(array('rating' => -1));
+							   break;
+			 }
+		}
+		
+		//sorting links
+		echo '<div class = "row">' . "\n";
+		echo '<div class = "col-md-8 col-md-offset-2">' . "\n";
+		echo '<div class = "sort">' . "\n";
+		echo 'Sort by <a href = "?sort=price-low-high&query=' . $query . '">Price(Low-High)</a>, 
+					  <a href = "?sort=price-high-low&query=' . $query . '">Price(High-Low)</a>,
+					  <a href = "?sort=rating&query=' . $query . '">Rating</a>'; 
+		echo "</div>" . "\n";
+		echo "</div>" . "\n";
+		echo "</div>" . "\n";	
+		
 			
+					
 		//iterate over the result set
 		foreach($result as $res)
 		{
-			
-			/*to-do:
-			  to be formatted for the user
-			  add sorting
-			  display date of posting that will also become a sorting option
-			*/
 			
 			//more of an arbitrary value based on what i perceive from the results
 			//change after seeing results for a larger dataset
@@ -130,12 +167,22 @@
 					}
 				echo "</div>" . "\n";
 				echo "<div class = 'resultRange'>";
-					echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $res['range'];
+					switch($res['range'])
+					{
+						case 1: $correctedRange = "Low";
+								break;
+						case 2: $correctedRange = "Medium";
+								break;
+						case 3: $correctedRange = "High";
+								break;
+					}
+					echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $correctedRange;
 				echo "</div>" . "\n";
 				echo "<div class = 'resultPhone'>";
 					echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] .
 								 "'>" . $res['phone'] . "</a>";
 				echo "</div>" . "\n";
+				echo "Posted at: &nbsp;" . date('d-M-y H:i', $res['datePosted'] -> sec);
 				echo "</div>" . "\n";
 				echo "</div>" . "\n";
 			}

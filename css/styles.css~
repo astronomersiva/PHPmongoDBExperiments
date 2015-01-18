@@ -3,6 +3,10 @@ body
 	overflow-x: hidden;
 }
 
+.sort
+{
+	float: right;
+}
 .result
 {
 	
@@ -28,9 +32,7 @@ body
 
 .resultRating
 {
-	content: "\2605";
-	position: absolute;
-	background-color: black;
+	color: gold;
 }
 
 .resultRange

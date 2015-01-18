@@ -20,10 +20,22 @@
 			$content = $_POST["content"];
 			$city = $_POST["city"];
 			$locality = $_POST["locality"];
-			$range = $_POST["range"];
+			$range = strtolower($_POST["range"]);
 			$rating = $_POST["rating"];
 			$category = $_POST["category"];
 			$phone = $_POST["phone"];
+			
+			switch($range)
+			{
+				case "high": $range = 3;
+							 break;
+				case "medium": $range = 2;
+							 break;
+				case "low": $range = 1;
+							 break;
+			}
+			
+			
 			$classified = array("name" => $name, "content" => $content, "city" => $city, "locality" => $locality, "range" => $range, "rating" => $rating, "phone" => $phone, "category" => $category, "datePosted" => new MongoDate());
 			try
 			{
