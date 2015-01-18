@@ -1,21 +1,17 @@
 body
 {
 	overflow-x: hidden;
+	padding-top: 20px;
 }
 
 .sort
 {
 	float: right !important;
 }
-.result
-{
-	
-}
-
 .resultTitle
 {
-	margin-top: 50px;
-	font-size: 25px;
+	margin-top: 10px;
+	font-size: 20px;
 	text-align: center;
 }
 
@@ -37,5 +33,14 @@ body
 
 .resultRange
 {
+	font-size: 14px;
+}
+.resultPhone
+{
+	font-size: 14px;
+}
+.resultPost
+{
+	font-size: 14px;
 }
 

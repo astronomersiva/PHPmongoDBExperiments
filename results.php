@@ -12,7 +12,7 @@
 	<?php		
 		
 		//debug flag
-		$debug = 1;
+		$debug = 0;
 		if($debug == 1)
 		{
 			echo "Debug mode. Assign 0 to the variable \$debug
@@ -88,7 +88,7 @@
 					   array('city' => new MongoRegex("/".$location."/i"), 
 					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))->
-					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+					    sort(array('$score' => array('$meta' => 'textScore')));
 				echo $result -> count() . "&nbsp;Matches found";
 			}
 			
@@ -104,8 +104,11 @@
 			$result = $collection -> find(
 					   array('$text' => array('$search' => "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))-> 
-					   	sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
-			echo $result -> count() . "&nbsp;Matches found";
+					   	sort(array('$score' => array('$meta' => 'textScore')));
+			if($debug == 1)
+			{
+				echo $result -> count() . "&nbsp;Matches found";
+			}
 		}	   
 		
 		
@@ -122,16 +125,19 @@
 									   break;
 				case "rating": $result -> sort(array('rating' => -1));
 							   break;
+				case "date": $result -> sort(array('datePosted' => -1));
+							   break;
 			 }
 		}
 		
 		//sorting links
 		echo '<div class = "row">' . "\n";
-		echo '<div class = "col-md-8 col-md-offset-2">' . "\n";
+		echo '<div class = "col-md-8 col-md-offset-3">' . "\n";
 		echo '<div class = "sort">' . "\n";
 		echo 'Sort by <a href = "?sort=price-low-high&query=' . $query . '">Price(Low-High)</a>, 
 					  <a href = "?sort=price-high-low&query=' . $query . '">Price(High-Low)</a>,
-					  <a href = "?sort=rating&query=' . $query . '">Rating</a>'; 
+					  <a href = "?sort=rating&query=' . $query . '">Rating</a>, 
+					  <a href = "?sort=date&query=' . $query . '">Date Posted</a>'; 
 		echo "</div>" . "\n";
 		echo "</div>" . "\n";
 		echo "</div>" . "\n";	
@@ -144,12 +150,10 @@
 			
 			//more of an arbitrary value based on what i perceive from the results
 			//change after seeing results for a larger dataset
-			if ($res['$score'] >= 0.54)
+			if ($res['$score'] >= 0.55)
 			{
 				echo '<div class = "row">' . "\n";
 				echo '<div class = "col-md-8 col-md-offset-2">' . "\n";
-				echo "<div class = 'result'>";
-				echo "</div>" . "\n";
 				echo "<div class = 'resultTitle'>";
 					echo $res['name'];
 				echo "</div>" . "\n";
@@ -182,7 +186,13 @@
 					echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] .
 								 "'>" . $res['phone'] . "</a>";
 				echo "</div>" . "\n";
-				echo "Posted at: &nbsp;" . date('d-M-y H:i', $res['datePosted'] -> sec);
+				echo "<div class = 'resultPost'>";
+					echo "Posted at: &nbsp;" . date('d-M-y H:i', $res['datePosted'] -> sec) . "<br>";
+				echo "</div>" . "\n";
+				if ($debug == 1)
+				{
+					echo $res['$score'];
+				}
 				echo "</div>" . "\n";
 				echo "</div>" . "\n";
 			}
