@@ -10,6 +10,10 @@
 </head>
 <body>
 	<?php		
+		
+		//debug flag
+		$debug = 1;
+		
 		//config
 		$m = new MongoClient();
    		$db = $m -> hindu;
@@ -46,56 +50,78 @@
 		//unable to decide if i shud go for it now
 		//a larger dataset would make that clear
 		//if location is set
+		//-1 for descending order
 		if (isset($location))
 		{
+			if ($debug == 1)
+			{
+				echo "Location specified." . $location . '<br>';
+			}
 			$result = $collection -> find(
 					   array('locality' => new MongoRegex("/".$location."/i"), '$text' => array('$search' =>  "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))-> sort(array('$score' => array('$meta' => 'textScore')));
+					   array('$score' => array( '$meta' => "textScore")))-> sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
 		}	   
 		//if location is not specified
 		else
-		{		   
+		{		
+			if ($debug == 1)
+			{
+				echo "No location";
+			}
 			$result = $collection -> find(
 					   array('$text' => array('$search' => "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))-> sort(array('$score' => array('$meta' => 'textScore')));
+					   array('$score' => array( '$meta' => "textScore")))-> sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
 		}	   
 			
 		//iterate over the result set
 		foreach($result as $res)
 		{
+			
+			if ($debug == 1)
+			{
+				var_dump($res["datePosted"]);
+			}
+			
 			/*to-do:
 			  to be formatted for the user
 			  add sorting
 			  display date of posting that will also become a sorting option
 			*/
-			echo '<div class = "row">' . "\n";
-			echo '<div class = "col-md-8 col-md-offset-2">' . "\n";
-			echo "<div class = 'result'>";
-			echo "</div>" . "\n";
-			echo "<div class = 'resultTitle'>";
-				echo $res['name'];
-			echo "</div>" . "\n";
-			echo "<div class = 'resultContent'>";
-				echo $res['content'];
-			echo "</div>" . "\n";
-			echo "<div class = 'resultLocality'>";
-				echo $res['locality'];
-			echo "</div>" . "\n";
-			echo "<div class = 'resultRating'>";
-				while($res['rating'] > 0)
-				{
-					echo "&#x2605;";
-					$res['rating'] -= 1;
-				}
-			echo "</div>" . "\n";
-			echo "<div class = 'resultRange'>";
-				echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $res['range'];
-			echo "</div>" . "\n";
-			echo "<div class = 'resultPhone'>";
-				echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] . "'>" . $res['phone'] . "</a>";
-			echo "</div>" . "\n";
-			echo "</div>" . "\n";
-			echo "</div>" . "\n";
+			
+			//more of an arbitrary value based on what i perceive from the results
+			//change after seeing results for a larger dataset
+			if ($res['$score'] >= 0.54)
+			{
+				echo $res['datePosted'];
+				echo '<div class = "row">' . "\n";
+				echo '<div class = "col-md-8 col-md-offset-2">' . "\n";
+				echo "<div class = 'result'>";
+				echo "</div>" . "\n";
+				echo "<div class = 'resultTitle'>";
+					echo $res['name'];
+				echo "</div>" . "\n";
+				echo "<div class = 'resultContent'>";
+					echo $res['content'];
+				echo "</div>" . "\n";
+				echo "<div class = 'resultLocality'>";
+					echo $res['locality'];
+				echo "</div>" . "\n";
+				echo "<div class = 'resultRating'>";
+					while($res['rating'] > 0)
+					{
+						echo "&#x2605;";
+						$res['rating'] -= 1;
+					}
+				echo "</div>" . "\n";
+				echo "<div class = 'resultRange'>";
+					echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $res['range'];
+				echo "</div>" . "\n";
+				echo "<div class = 'resultPhone'>";
+					echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] . "'>" . $res['phone'] . "</a>";
+				echo "</div>" . "\n";
+				echo "</div>" . "\n";
+				echo "</div>" . "\n";
+			}
 		}
 		?>
 </body>
