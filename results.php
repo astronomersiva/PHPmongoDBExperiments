@@ -14,18 +14,19 @@
 		//debug flag
 		$debug = 1;
 		
+		if($debug == 1)
+		{
+			echo "Debug mode. Assign 0 to the variable \$debug
+					to toggle<br>";
+		}
+		
 		//config
 		$m = new MongoClient();
    		$db = $m -> hindu;
    		$collection = $db -> chennai;
 		$query = $_POST["query"];
 		
-		//for location based queries
-		
-		//add a city alternative
-		//else xxx in chennai will not work
-		//instead only xxx in adyar/* will work
-		//also add error handler for 'in', 
+		//for location based queries 
 		$splitQuery = explode(" ", $query);
 		if (in_array('at', $splitQuery) !== false)
 		{
@@ -55,11 +56,31 @@
 		{
 			if ($debug == 1)
 			{
-				echo "Location specified." . $location . '<br>';
+				echo "Location specified." . $location . "<br>";
 			}
 			$result = $collection -> find(
-					   array('locality' => new MongoRegex("/".$location."/i"), '$text' => array('$search' =>  "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))-> sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+					   array('locality' => new MongoRegex("/".$location."/i"), 
+					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
+					   array('$score' => array( '$meta' => "textScore")))->
+					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+			if ($debug == 1)
+			{
+				echo $result -> count() . " Matches found<br>";
+			}
+			//for city based queries		    
+			if($result -> count() == 0)
+			{
+				if ($debug == 1)
+				{
+					echo "Trying by city<br>";
+				}
+				$result = $collection -> find(
+					   array('city' => new MongoRegex("/".$location."/i"), 
+					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
+					   array('$score' => array( '$meta' => "textScore")))->
+					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+			}
+			
 		}	   
 		//if location is not specified
 		else
@@ -70,17 +91,13 @@
 			}
 			$result = $collection -> find(
 					   array('$text' => array('$search' => "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))-> sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+					   array('$score' => array( '$meta' => "textScore")))-> 
+					   	sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
 		}	   
 			
 		//iterate over the result set
 		foreach($result as $res)
 		{
-			
-			if ($debug == 1)
-			{
-				var_dump($res["datePosted"]);
-			}
 			
 			/*to-do:
 			  to be formatted for the user
@@ -92,7 +109,6 @@
 			//change after seeing results for a larger dataset
 			if ($res['$score'] >= 0.54)
 			{
-				echo $res['datePosted'];
 				echo '<div class = "row">' . "\n";
 				echo '<div class = "col-md-8 col-md-offset-2">' . "\n";
 				echo "<div class = 'result'>";
@@ -117,12 +133,14 @@
 					echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $res['range'];
 				echo "</div>" . "\n";
 				echo "<div class = 'resultPhone'>";
-					echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] . "'>" . $res['phone'] . "</a>";
+					echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] .
+								 "'>" . $res['phone'] . "</a>";
 				echo "</div>" . "\n";
 				echo "</div>" . "\n";
 				echo "</div>" . "\n";
 			}
 		}
+		
 		?>
 </body>
 </html>
