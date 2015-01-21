@@ -8,6 +8,13 @@ body
 {
 	float: right !important;
 }
+
+.sidePane
+{
+	margin-top: 50px;
+	text-transform: capitalize;
+}
+
 .resultTitle
 {
 	margin-top: 10px;

@@ -36,7 +36,7 @@
 					</select>
 					<button class="btn btn-success btn-block" type="submit">
                                 Insert
-                            </button>
+                    </button>
   				</div>
 			</form>
 		</div>

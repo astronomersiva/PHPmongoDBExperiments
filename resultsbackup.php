@@ -59,6 +59,12 @@
 		//-1 for descending order
 		//1 for ascending order
 		
+		
+		if (isset($_GET['loc']))
+		{
+			$location = $_GET['loc'];
+		}
+		
 		if (isset($location))
 		{
 			if ($debug == 1)
@@ -66,22 +72,11 @@
 				echo "Location specified." . $location . "<br>";
 			}
 			
-			if(isset($_GET['cat']))
-			{
-				$result = $collection -> find(
-					   array('category' => $_GET['cat'], 'locality' => new MongoRegex("/".$location."/i"), 
-					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))->
-					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
-			}
-			else
-			{
-				$result = $collection -> find(
+			$result = $collection -> find(
 					   array('locality' => new MongoRegex("/".$location."/i"), 
 					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))->
 					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
-			}
 			
 			if ($debug == 1)
 			{
@@ -95,24 +90,12 @@
 				{
 					echo "Trying by city<br>";
 				}
-				if(isset($_GET['cat']))
-				{
-					$result = $collection -> find(
-					   array('category' => $_GET['cat'], 'city' => new MongoRegex("/".$location."/i"), 
-					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))->
-					    sort(array('$score' => array('$meta' => 'textScore')));
-					echo $result -> count() . "&nbsp;Matches found";
-				}
-				else
-				{
-					$result = $collection -> find(
+				$result = $collection -> find(
 					   array('city' => new MongoRegex("/".$location."/i"), 
 					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))->
 					    sort(array('$score' => array('$meta' => 'textScore')));
-					echo $result -> count() . "&nbsp;Matches found";
-				}
+				echo $result -> count() . "&nbsp;Matches found";
 			}
 			
 		}	
@@ -124,20 +107,10 @@
 			{
 				echo "No location<br>";
 			}
-			if(isset($_GET['cat']))
-			{
-				$result = $collection -> find(
-					   array('category' => $_GET['cat'], '$text' => array('$search' => "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))-> 
-					   	sort(array('$score' => array('$meta' => 'textScore')));
-			}
-			else
-			{
-				$result = $collection -> find(
+			$result = $collection -> find(
 					   array('$text' => array('$search' => "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))-> 
 					   	sort(array('$score' => array('$meta' => 'textScore')));
-			}
 			if($debug == 1)
 			{
 				echo $result -> count() . "&nbsp;Matches found";
@@ -163,64 +136,71 @@
 			 }
 		}
 		
+		
+		if(isset($_GET['cat']))
+		{
+			if(isset($_GET['loc']))
+			{
+				$result = $collection -> find(
+					   array('locality' => new MongoRegex("/".$location."/i"),
+					   		  'category' => $_GET['cat'], 
+					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
+					   array('$score' => array( '$meta' => "textScore")))->
+					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+			}
+			else
+			{
+				echo $_GET['cat'];
+				$result = $collection -> find(
+					   array('category' => $_GET['cat'], 
+					   			'$text' => array('$search' =>  "\\" . $query . "\\" )), 
+					   array('$score' => array( '$meta' => "textScore")))->
+					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+			}
+		}
+		
 		//sorting links
 		echo '<div class = "row">' . "\n";
 		echo '<div class = "col-md-8 col-md-offset-3">' . "\n";
 		echo '<div class = "sort">' . "\n";
-		if(isset($_GET['cat']))
-		{
-			if(isset($location))
-			{
-				echo 'Sort by <a href = "?sort=price-low-high&query=' . $query . '&cat=' . $_GET['cat'] . '&loc=' . $location. '">Price(Low-High)</a>, 
-					  	<a href = "?sort=price-high-low&query=' . $query . '&cat=' . $_GET['cat'] . '&loc=' . $location. '">Price(High-Low)</a>,
-					  	<a href = "?sort=rating&query=' . $query . '&cat=' . $_GET['cat'] . '&loc=' . $location. '">Rating</a>, 
-					  	<a href = "?sort=date&query=' . $query . '&cat=' . $_GET['cat'] . '&loc=' . $location. '">Date Posted</a>';
-			
-			}
-			else
-			{
-				echo 'Sort by <a href = "?sort=price-low-high&query=' . $query . '&cat=' . $_GET['cat'] . '">Price(Low-High)</a>, 
-					  	<a href = "?sort=price-high-low&query=' . $query . '&cat=' . $_GET['cat'] . '">Price(High-Low)</a>,
-					  	<a href = "?sort=rating&query=' . $query . '&cat=' . $_GET['cat'] . '">Rating</a>, 
-					  	<a href = "?sort=date&query=' . $query . '&cat=' . $_GET['cat'] . '">Date Posted</a>';
-			}
-		}
-		else 
-		{
-			if(isset($location))
-			{
-				echo 'Sort by <a href = "?sort=price-low-high&query=' . $query . '&loc=' . $location. '">Price(Low-High)</a>, 
-					  	<a href = "?sort=price-high-low&query=' . $query . '&loc=' . $location. '">Price(High-Low)</a>,
-					  	<a href = "?sort=rating&query=' . $query . '&loc=' . $location. '">Rating</a>, 
-					  	<a href = "?sort=date&query=' . $query  . '&loc=' . $location. '">Date Posted</a>'; 
-			}
-			else
-			{
-				echo 'Sort by <a href = "?sort=price-low-high&query=' . $query . '">Price(Low-High)</a>, 
-					  	<a href = "?sort=price-high-low&query=' . $query . '">Price(High-Low)</a>,
-					  	<a href = "?sort=rating&query=' . $query . '">Rating</a>, 
-					  	<a href = "?sort=date&query=' . $query . '">Date Posted</a>';
-			}
-		}
+		echo 'Sort by <a href = "?sort=price-low-high&query=' . $query . '">Price(Low-High)</a>, 
+					  <a href = "?sort=price-high-low&query=' . $query . '">Price(High-Low)</a>,
+					  <a href = "?sort=rating&query=' . $query . '">Rating</a>, 
+					  <a href = "?sort=date&query=' . $query . '">Date Posted</a>'; 
 		echo "</div>" . "\n";
 		echo "</div>" . "\n";
 		echo "</div>" . "\n";	
-		
-		
+
+
+		//start of results page
 		echo '<div class = "row">' . "\n";
-		echo '<div class = "col-md-1 col-md-offset-2 sidePane">' . "\n";
-		echo "<div class = 'sidePane'>Category:" . "<br>" . "</div>" . "<br>" . "\n";
+		
+		
+		//categories pane
+		echo '<div class = "col-md-3 col-md-offset-1">' . "\n";
+			echo "<div class = 'sidePane'>Category:" . "<br>" . "</div>" . "<br>" . "\n";
 			$categoriesCollection = $db -> categories;
    			$categoriesCursor = $categoriesCollection -> find();
+   			$catCount = 0;
    			foreach($categoriesCursor as $categoriesResult)
-   			{	
-   				echo '<a href = "?cat=' . $categoriesResult['name'] . '&query=' . $query . '"> ' . $categoriesResult['name'] 
+   			{		
+   				if(isset($location))
+   				{	
+					echo '<a href = "?cat=' . $categoriesResult['name'] . '&query=' . $query .  '&loc=' . $location .'"> ' . 			$categoriesResult['name'] 
 							. '</a><br>';
+				}
+				else
+				{
+					echo '<a href = "?cat=' . $categoriesResult['name'] . '&query=' . $query . '"> ' . $categoriesResult['name'] 
+							. '</a><br>';
+				}
    			}
-   		echo "</div>" . "\n";	
+		echo "</div>" . "\n";	
 		
 		
-		echo '<div class = "col-md-6 col-md-offset-1">' . "\n";
+		//results pane
+		echo '<div class = "col-md-6">' . "\n";		
+		
 		//iterate over the result set
 		foreach($result as $res)
 		{
@@ -228,9 +208,9 @@
 			//more of an arbitrary value based on what i perceive from the results
 			//change after seeing results for a larger dataset
 			if ($res['$score'] >= 0.55)
-			{
-					
-				//results pane.
+			{			
+
+				echo $res['category'];
 				echo "<div class = 'resultTitle'>";
 					echo $res['name'];
 				echo "</div>" . "\n";
@@ -270,6 +250,7 @@
 				{
 					echo $res['$score'];
 				}
+				
 			}
 		}
 		echo "</div>" . "\n";
