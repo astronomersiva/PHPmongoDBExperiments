@@ -23,6 +23,8 @@
 		$m = new MongoClient();
    		$db = $m -> hindu;
    		$collection = $db -> chennai;
+
+
    		if(isset($_GET['query']))
 		{
 			$query = $_GET['query'];
@@ -31,9 +33,44 @@
 		{
 			$query = $_POST["query"];
 		}
+
 		
-		//for location based queries 
+		//split the query for further operations
 		$splitQuery = explode(" ", $query);
+		
+		
+		
+		//look for category in the query.
+		if (in_array('packers', $splitQuery) !== false)
+		{
+			array_push($splitQuery, "packers and movers");
+		}
+		if (in_array('movers', $splitQuery) !== false)
+		{
+			array_push($splitQuery, "packers and movers");
+		}
+		if (in_array('real', $splitQuery) !== false)
+		{
+			array_push($splitQuery, "real estate");
+		}
+   		$categoriesCollection = $db -> categories;
+   		$categoriesCursor = $categoriesCollection -> find(array(), array("_id" => 0, "name" => 1));
+		$catArray = array();
+		foreach($categoriesCursor as $cats)
+		{
+			array_push($catArray, $cats["name"]);
+		}
+   		$match = array_intersect($catArray, $splitQuery);
+   		if (count($match) > 0)
+   		{
+   			$queryCatFlag = 1;
+   			$match = $match[0];
+   			
+   		}
+   		
+   		
+   				
+		//for location based queries 
 		if (in_array('at', $splitQuery) !== false)
 		{
 			$locationIndex =  array_search('at', $splitQuery) + 1;
@@ -76,11 +113,22 @@
 			}
 			else
 			{
-				$result = $collection -> find(
+				if(isset($queryCatFlag))
+				{
+					$result = $collection -> find(
+					   array('category' => $match, 'locality' => new MongoRegex("/".$location."/i"), 
+					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
+					   array('$score' => array( '$meta' => "textScore")))->
+					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+				}
+				else
+				{
+					$result = $collection -> find(
 					   array('locality' => new MongoRegex("/".$location."/i"), 
 					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))->
 					    sort(array('datePosted' => -1, '$score' => array('$meta' => 'textScore')));
+				}
 			}
 			
 			if ($debug == 1)
@@ -102,16 +150,33 @@
 					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))->
 					    sort(array('$score' => array('$meta' => 'textScore')));
-					echo $result -> count() . "&nbsp;Matches found";
+					if ($debug == 1)
+					{
+						echo $result -> count() . "&nbsp;Matches found";
+					}
 				}
 				else
 				{
-					$result = $collection -> find(
-					   array('city' => new MongoRegex("/".$location."/i"), 
-					   	'$text' => array('$search' =>  "\\" . $query . "\\" )), 
-					   array('$score' => array( '$meta' => "textScore")))->
-					    sort(array('$score' => array('$meta' => 'textScore')));
-					echo $result -> count() . "&nbsp;Matches found";
+					if(isset($queryCatFlag))
+					{	
+						$result = $collection -> find(
+					   		array('category' => $match, 'city' => new MongoRegex("/".$location."/i"), 
+					   		'$text' => array('$search' =>  "\\" . $query . "\\" )), 
+					   		array('$score' => array( '$meta' => "textScore")))->
+					    		sort(array('$score' => array('$meta' => 'textScore')));
+					}
+					else
+					{
+						$result = $collection -> find(
+					   		array('city' => new MongoRegex("/".$location."/i"), 
+					   		'$text' => array('$search' =>  "\\" . $query . "\\" )), 
+					   		array('$score' => array( '$meta' => "textScore")))->
+					    		sort(array('$score' => array('$meta' => 'textScore')));
+					}	
+					if ($debug == 1)
+					{
+						echo $result -> count() . "&nbsp;Matches found";
+					}
 				}
 			}
 			
@@ -133,10 +198,20 @@
 			}
 			else
 			{
-				$result = $collection -> find(
+				if(isset($queryCatFlag))
+				{
+					$result = $collection -> find(
+					   array('category' => $match, '$text' => array('$search' => "\\" . $query . "\\" )), 
+					   array('$score' => array( '$meta' => "textScore")))-> 
+					   	sort(array('$score' => array('$meta' => 'textScore')));
+				}
+				else
+				{
+					$result = $collection -> find(
 					   array('$text' => array('$search' => "\\" . $query . "\\" )), 
 					   array('$score' => array( '$meta' => "textScore")))-> 
 					   	sort(array('$score' => array('$meta' => 'textScore')));
+				}
 			}
 			if($debug == 1)
 			{
@@ -149,7 +224,10 @@
 		if(isset($_GET['sort']))
 		{
 			$sort = $_GET['sort'];
-			echo "<br>" . "Sorting by " . $sort;
+			if($debug == 1)
+			{
+				echo "<br>" . "Sorting by " . $sort;
+			}
 			switch($sort)
 			{
 				case "price-low-high": $result -> sort(array('range' => 1));
@@ -160,7 +238,7 @@
 							   break;
 				case "date": $result -> sort(array('datePosted' => -1));
 							   break;
-			 }
+			}
 		}
 		
 		//sorting links
@@ -208,7 +286,7 @@
 		
 		
 		echo '<div class = "row">' . "\n";
-		echo '<div class = "col-md-1 col-md-offset-2 sidePane">' . "\n";
+		echo '<div class = "col-md-2 col-md-offset-1 sidePane">' . "\n";
 		echo "<div class = 'sidePane'>Category:" . "<br>" . "</div>" . "<br>" . "\n";
 			$categoriesCollection = $db -> categories;
    			$categoriesCursor = $categoriesCollection -> find();
@@ -220,7 +298,7 @@
    		echo "</div>" . "\n";	
 		
 		
-		echo '<div class = "col-md-6 col-md-offset-1">' . "\n";
+		echo '<div class = "col-md-8">' . "\n";
 		//iterate over the result set
 		foreach($result as $res)
 		{
@@ -231,6 +309,7 @@
 			{
 					
 				//results pane.
+				echo "<div class = 'row'>";
 				echo "<div class = 'resultTitle'>";
 					echo $res['name'];
 				echo "</div>" . "\n";
@@ -270,6 +349,7 @@
 				{
 					echo $res['$score'];
 				}
+				echo "</div>" . "\n";
 			}
 		}
 		echo "</div>" . "\n";

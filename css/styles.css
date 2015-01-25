@@ -1,6 +1,6 @@
 body
 {
-	overflow-x: hidden;
+	overflow-x: hidden !important;
 	padding-top: 20px;
 }
 
@@ -18,13 +18,12 @@ body
 .resultTitle
 {
 	margin-top: 10px;
-	font-size: 20px;
-	text-align: center;
+	font-size: 18px;
 }
 
 .resultContent
 {
-	font-size: 18px;
+	font-size: 16px;
 	text-align: justify;
 }
 
