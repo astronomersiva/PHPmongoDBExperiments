@@ -285,24 +285,9 @@
 		echo "</div>" . "\n";	
 		
 		
-		//search box
-		echo '<div class = "row search">' . "\n";
-		echo '<div class = "col-md-8 col-md-offset-3">' . "\n";
-		echo '
-		<form method = "post" action = "results.php">
-  				<div class="form-group">
-    				<input type="text" name = "query" class="form-control" id="query"  placeholder="What are you looking for?">
-  				</div>
-			</form>';
-		echo "</div>" . "\n";
-		echo "</div>" . "\n";
-		
-		
-		
-		//side pane for categories
 		echo '<div class = "row">' . "\n";
 		echo '<div class = "col-md-2 col-md-offset-1 sidePane">' . "\n";
-		echo "<div class = 'sidePane'><span class = 'cat'>Category:" . "</span><br>" . "</div>" . "<br>" . "\n";
+		echo "<div class = 'sidePane'>Category:" . "<br>" . "</div>" . "<br>" . "\n";
 			$categoriesCollection = $db -> categories;
    			$categoriesCursor = $categoriesCollection -> find();
    			foreach($categoriesCursor as $categoriesResult)
@@ -350,7 +335,6 @@
 								break;
 						case 3: $correctedRange = "High";
 								break;
-						default: $correctedRange = "NA";
 					}
 					echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $correctedRange;
 				echo "</div>" . "\n";

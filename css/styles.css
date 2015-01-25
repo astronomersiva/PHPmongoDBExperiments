@@ -4,6 +4,18 @@ body
 	padding-top: 20px;
 }
 
+
+.search
+{
+	margin-top: 30px;
+}
+
+span.cat
+{
+	color: #337ab7;
+	font-size: 17px;
+}
+
 .sort
 {
 	float: right !important;
@@ -11,8 +23,9 @@ body
 
 .sidePane
 {
-	margin-top: 50px;
+	margin-top: -25px;
 	text-transform: capitalize;
+	margin-bottom: -15px;
 }
 
 .resultTitle
