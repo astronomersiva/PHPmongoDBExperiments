@@ -6,7 +6,7 @@
 	<link href="css/styles.css" rel="stylesheet"	media="screen">
 	<!-- Bootstrap -->
 	<link href="css/bootstrap.min.css" rel="stylesheet"	media="screen">
-	<link href="css/style.css" rel="stylesheet" media="screen">
+	<link href="css/styles.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<?php		
@@ -335,12 +335,14 @@
 					echo $res['locality'];
 				echo "</div>" . "\n";
 				echo "<div class = 'resultRating'>";
+				echo "<span style = 'color: #333'>Rating:</span>&nbsp;";
 					while($res['rating'] > 0)
 					{
 						echo "&#x2605;";
 						$res['rating'] -= 1;
 					}
 				echo "</div>" . "\n";
+				/*
 				echo "<div class = 'resultRange'>";
 					switch($res['range'])
 					{
@@ -354,12 +356,13 @@
 					}
 					echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $correctedRange;
 				echo "</div>" . "\n";
+				*/
 				echo "<div class = 'resultPhone'>";
 					echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] .
 								 "'>" . $res['phone'] . "</a>";
 				echo "</div>" . "\n";
 				echo "<div class = 'resultPost'>";
-					echo "Posted at: &nbsp;" . date('d-M-y H:i', $res['datePosted'] -> sec) . "<br>";
+					echo "Posted on: &nbsp;" . date('d-M-y H:i', $res['datePosted'] -> sec) . "<br>";
 				echo "</div>" . "\n";
 				if ($debug == 1)
 				{
