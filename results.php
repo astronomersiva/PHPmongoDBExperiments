@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 	<title>returnTrue</title>
 	<link href="css/styles.css" rel="stylesheet"	media="screen">
 	<!-- Bootstrap -->
@@ -41,6 +40,8 @@
 		
 		
 		//look for category in the query.
+		//more of a placeholder as of 25 Jan.
+		//Lots of tea, chocs and hardwork needed tonight.
 		if (in_array('packers', $splitQuery) !== false)
 		{
 			array_push($splitQuery, "packers and movers");
@@ -71,6 +72,7 @@
    		
    				
 		//for location based queries 
+		//eg. homes in/near/at chennai
 		if (in_array('at', $splitQuery) !== false)
 		{
 			$locationIndex =  array_search('at', $splitQuery) + 1;
@@ -285,7 +287,8 @@
 		echo "</div>" . "\n";	
 		
 		
-		//search box
+		//search box.
+		//saves of lot of time now, uh? :D
 		echo '<div class = "row search">' . "\n";
 		echo '<div class = "col-md-8 col-md-offset-3">' . "\n";
 		echo '
@@ -299,7 +302,7 @@
 		
 		
 		
-		//side pane for categories
+		//side pane for displaying categories
 		echo '<div class = "row">' . "\n";
 		echo '<div class = "col-md-2 col-md-offset-1 sidePane">' . "\n";
 		echo "<div class = 'sidePane'><span class = 'cat'>Category:" . "</span><br>" . "</div>" . "<br>" . "\n";
@@ -321,11 +324,14 @@
 		{
 			echo "No results found.";
 		}
+
+		//Iterate over each result returned
+		//and display as individual rows.
 		
 		foreach($result as $res)
 		{
 			
-			//more of an arbitrary value based on what i perceive from the results
+			//more of an arbitrary value based on what I perceive from the results
 			//change after seeing results for a larger dataset
 			if ($res['$score'] >= 0.55)
 			{
