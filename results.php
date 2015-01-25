@@ -315,6 +315,13 @@
 		
 		echo '<div class = "col-md-8">' . "\n";
 		//iterate over the result set
+		
+		//empty results message
+		if($result -> count() == 0)
+		{
+			echo "No results found.";
+		}
+		
 		foreach($result as $res)
 		{
 			
