@@ -48,7 +48,6 @@
 		$packers = array("pack", "packers", "move", "movers");
 		$cook = array("cook", "cooking");
 		$realEstate = array("land", "plot", "CMDA", "cmda");
-		
 		if (count(array_intersect($realEstate, $splitQuery)) > 0)
 		{
 			$queryCatFlag = 1;
