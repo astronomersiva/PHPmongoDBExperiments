@@ -352,12 +352,19 @@
 		echo '
 		<form method = "post" action = "results.php">
   				<div class="form-group">
-    				<input type="text" name = "query" class="form-control" id="query"  placeholder="What are you looking for?">
-  				</div>
+
+    				<input type="text" name = "query" class="form-control col-md-8" style="width:70%"  value = "' . $query . '" id="query"  placeholder="What are you looking for?">
+				<input type = "button" class="col-md-3 btn btn-primary" style = "margin-left:10px" name = "reset" onclick="clearIt()" value = "Reset">
+				</div>
+
 			</form>';
 		echo "</div>" . "\n";
 		echo "</div>" . "\n";
-		
+		echo '<script type="text/javascript">
+			function clearIt() {
+			    document.getElementById("query").value="";
+			}
+			</script>';
 		
 		
 		//side pane for categories
