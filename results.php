@@ -25,12 +25,14 @@
    		if(isset($_GET['query']))
 		{
 			$query = $_GET['query'];
+			
 		}
 		else
 		{
 			$query = $_POST["query"];
 		}
-
+			$Q = $query;
+			$query = strtolower($query);
 		
 		//split the query for further operations
 		$splitQuery = explode(" ", $query);
@@ -350,14 +352,19 @@
 		echo '<div class = "row search">' . "\n";
 		echo '<div class = "col-md-8 col-md-offset-3">' . "\n";
 		echo '
-		<form method = "post" action = "results.php">
-  				<div class="form-group">
-    				<input type="text" name = "query" class="form-control" id="query"  placeholder="What are you looking for?">
-  				</div>
-			</form>';
-		echo "</div>" . "\n";
-		echo "</div>" . "\n";
-		
+<form method = "post" action = "results.php">
+<div class="form-group">
+<input type="text" name = "query" class="form-control col-md-8" style="width:70%" value = "' . $Q . '" id="query" placeholder="What are you looking for?">
+<input type = "button" class="col-md-3 btn btn-primary" style = "margin-left:10px" name = "reset" onclick="clearIt()" value = "Reset">
+</div>
+</form>';
+echo "</div>" . "\n";
+echo "</div>" . "\n";
+echo '<script type="text/javascript">
+function clearIt() {
+document.getElementById("query").value="";
+}
+</script>';
 		
 		
 		//side pane for categories
