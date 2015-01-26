@@ -48,25 +48,31 @@
 		$packers = array("pack", "packers", "move", "movers");
 		$cook = array("cook", "cooking");
 		$realEstate = array("land", "plot", "CMDA", "cmda");
+		$dining = array("dining", "hotel", "food", "restaurants", "restaurant");
 		if (count(array_intersect($realEstate, $splitQuery)) > 0)
 		{
 			$queryCatFlag = 1;
    			$_GET['cat'] = "real estate";
 		}
-		if (count(array_intersect($education, $splitQuery)) > 0)
+		else if (count(array_intersect($education, $splitQuery)) > 0)
 		{
 			$queryCatFlag = 1;
    			$_GET['cat'] = "education";
 		}
-		if (count(array_intersect($cook, $splitQuery)) > 0)
+		else if (count(array_intersect($cook, $splitQuery)) > 0)
 		{
 			$queryCatFlag = 1;
    			$_GET['cat'] = "services";
 		}
-		if (count(array_intersect($packers, $splitQuery)) > 0)
+		else if (count(array_intersect($packers, $splitQuery)) > 0)
 		{
 			$queryCatFlag = 1;
    			$_GET['cat'] = "packers and movers";
+		}
+		else if (count(array_intersect($dining, $splitQuery)) > 0)
+		{
+			$queryCatFlag = 1;
+   			$_GET['cat'] = "dining";
 		}
 		
 		
