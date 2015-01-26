@@ -35,6 +35,15 @@
 		//split the query for further operations
 		$splitQuery = explode(" ", $query);
 		
+		/*custom stop words to overcome
+		  certain mismatches. MongoDB
+		  doesn't support this as of now.
+		  So implementing this in PHP as a
+		  roundabout. Typical Indian jugaad
+		  -siva(26/1)
+		*/
+		$customStop = array("find", "somebody", "some", "one", "just");
+		$query = str_replace($customStop, "", $query);
 		
 		/*custom language recog
 		  will add more as the data set increases.
@@ -44,20 +53,27 @@
 		  to what it faces in localhost.		  
 		*/
 		
-		$education = array("home", "tuitions", "tuition", "classes");
+		$education = array("home", "tuitions", "tuition", "classes", "tutor", "teach");
+		$matrimony = array("marry", "bride", "groom");
 		$packers = array("pack", "packers", "move", "movers");
 		$cook = array("cook", "cooking");
-		$realEstate = array("land", "plot", "CMDA", "cmda");
-		$dining = array("dining", "hotel", "food", "restaurants", "restaurant");
+		$realEstate = array("land", "plot", "CMDA", "cmda", "home", "house");
+		$dining = array("dining", "hotel", "food", "restaurants", "restaurant", "eat", "dine");
+		
 		if (count(array_intersect($realEstate, $splitQuery)) > 0)
 		{
 			$queryCatFlag = 1;
    			$_GET['cat'] = "real estate";
 		}
-		else if (count(array_intersect($education, $splitQuery)) > 0)
+		else if (count(array_intersect($education, $splitQuery)) > 1)
 		{
 			$queryCatFlag = 1;
    			$_GET['cat'] = "education";
+		}
+		else if (count(array_intersect($matrimony, $splitQuery)) > 0)
+		{
+			$queryCatFlag = 1;
+   			$_GET['cat'] = "matrimony";
 		}
 		else if (count(array_intersect($cook, $splitQuery)) > 0)
 		{
@@ -358,12 +374,54 @@
 		echo '<div class = "col-md-8">' . "\n";
 		
 		//iterate over the result set
-		
-		//empty results message
 		if($result -> count() == 0)
 		{
-			echo "No results found.";
-		}
+			echo "Exact matches not found.";
+			if(isset($queryCatFlag))
+			{
+				if($debug == 1)
+				{
+					echo "\ngoing for category fetch\n";
+					echo $_GET['cat'];
+				}
+				if (isset($location))
+				{
+					if ($debug == 1)
+					{
+						echo "Location specified." . $location . "<br>";
+					}
+					$result = $collection -> find(
+					 	  array('category' => $_GET['cat'], 'locality' => new MongoRegex("/".$location."/i")))->
+					  	  sort(array('datePosted' => -1));
+					if ($debug == 1)
+					{
+						echo $result -> count() . " Matches found<br>";
+					}
+			
+					//for city based queries		    
+					if($result -> count() == 0)
+					{
+						if ($debug == 1)
+						{
+							echo "City specified." . $location . "<br>";
+						}
+						$result = $collection -> find(
+					 	  	array('category' => $_GET['cat'], 'city' => new MongoRegex("/".$location."/i")))->
+					  	  	sort(array('datePosted' => -1));
+						if ($debug == 1)
+						{
+							echo $result -> count() . "&nbsp;Matches found";
+						}
+					}
+				}
+			}
+			echo "<br>Displaying ads in this category.";
+			if($result -> count() == 0)
+			{
+				$result = $collection -> find(
+					   array('category' => $_GET['cat']));
+			}
+		}	
 		
 		foreach($result as $res)
 		{
@@ -374,6 +432,10 @@
 			  this threshold can be relaxed a bit to display
 			  little less relevant but matching results.
 			*/
+			if(!isset($res['$score']))
+			{
+				$res['$score'] = 0.55;
+			}
 			
 			if ($res['$score'] >= 0.55)
 			{
