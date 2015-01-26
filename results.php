@@ -60,15 +60,16 @@
 		$realEstate = array("land", "plot", "CMDA", "cmda", "home", "house");
 		$dining = array("dining", "hotel", "food", "restaurants", "restaurant", "eat", "dine");
 		
-		if (count(array_intersect($realEstate, $splitQuery)) > 0)
-		{
-			$queryCatFlag = 1;
-   			$_GET['cat'] = "real estate";
-		}
-		else if (count(array_intersect($education, $splitQuery)) > 1)
+		
+		if (count(array_intersect($education, $splitQuery)) > 1)
 		{
 			$queryCatFlag = 1;
    			$_GET['cat'] = "education";
+		}
+		else if (count(array_intersect($realEstate, $splitQuery)) > 0)
+		{
+			$queryCatFlag = 1;
+   			$_GET['cat'] = "real estate";
 		}
 		else if (count(array_intersect($matrimony, $splitQuery)) > 0)
 		{
@@ -428,6 +429,26 @@
 					//i dont think anything is needed here. should wait n see.
 				}
 			}
+			//sorting at client side
+			if(isset($_GET['sort']))
+			{
+				$sort = $_GET['sort'];
+				if($debug == 1)
+				{
+					echo "<br>" . "Sorting by " . $sort;
+				}
+				switch($sort)
+				{
+					case "price-low-high": $result -> sort(array('range' => 1));
+										   break;
+					case "price-high-low": $result -> sort(array('range' => -1));
+										   break;
+					case "rating": $result -> sort(array('rating' => -1));
+								   break;
+					case "date": $result -> sort(array('datePosted' => -1));
+								   break;
+				}
+			}
 		}	
 		
 		foreach($result as $res)
@@ -509,4 +530,3 @@
 		?>
 </body>
 </html>
-
