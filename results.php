@@ -375,10 +375,10 @@
 				//results pane.
 				echo "<div class = 'row'>";
 				echo "<div class = 'resultTitle'>";
-					echo $res['name'];
+					echo ucwords($res['name']);
 				echo "</div>" . "\n";
 				echo "<div class = 'resultContent'>";
-					echo $res['content'];
+					echo ucwords($res['content']);
 				echo "</div>" . "\n";
 				echo "<div class = 'resultLocality'>";
 					echo $res['locality'];
