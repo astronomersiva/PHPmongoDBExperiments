@@ -379,7 +379,7 @@
 					echo ucwords($res['name']);
 				echo "</div>" . "\n";
 				echo "<div class = 'resultContent'>";
-					echo ucwords($res['content']);
+					echo $res['content'];
 				echo "</div>" . "\n";
 				echo "<div class = 'resultLocality'>";
 					echo $res['locality'];
