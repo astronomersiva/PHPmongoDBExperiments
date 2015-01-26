@@ -2,14 +2,14 @@ body
 {
 	overflow-x: hidden !important;
 	padding-top: 20px;
-	background-color: #F6F6F6;
+	background-color: #F6F6F6 !important;
 }
 
 
 .search
 {
 	margin-top: 30px;
-	margin-left: -35px;
+	margin-left: -35px !important;
 }
 
 span.cat
@@ -25,7 +25,7 @@ span.cat
 
 .sidePane
 {
-	margin-top: -25px;
+	margin-top: 5px !important;
 	text-transform: capitalize;
 	margin-bottom: -15px;
 }
