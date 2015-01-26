@@ -25,14 +25,14 @@
    		if(isset($_GET['query']))
 		{
 			$query = $_GET['query'];
-			$Q = $query;
+			
 		}
 		else
 		{
 			$query = $_POST["query"];
-			$Q = $query;
 		}
-
+			$Q = $query;
+			$query = strtolower($query);
 		
 		//split the query for further operations
 		$splitQuery = explode(" ", $query);
