@@ -2,10 +2,8 @@
 <html>
 <head>
 	<title>returnTrue</title>
-	<link href="css/styles.css" rel="stylesheet"	media="screen">
-	<!-- Bootstrap -->
-	<link href="css/bootstrap.min.css" rel="stylesheet"	media="screen">
 	<link href="css/styles.css" rel="stylesheet" media="screen">
+	<link href="css/bootstrap.min.css" rel="stylesheet"	media="screen">
 </head>
 <body>
 	<?php		
@@ -38,10 +36,50 @@
 		$splitQuery = explode(" ", $query);
 		
 		
+		/*custom language recog
+		  will add more as the data set increases.
+		  Reduces the load on the server as the processing is less.
+		  Will be a plus point for us as the server will face a lot
+		  of load when put on the Hindu(assuming we win :P) compared
+		  to what it faces in localhost.		  
+		*/
 		
-		//look for category in the query.
-		//more of a placeholder as of 25 Jan.
-		//Lots of tea, chocs and hardwork needed tonight.
+		$education = array("home", "tuitions", "tuition", "classes");
+		$packers = array("pack", "packers", "move", "movers");
+		$cook = array("cook", "cooking");
+		$realEstate = array("land", "plot", "CMDA", "cmda");
+		
+		if (count(array_intersect($realEstate, $splitQuery)) > 0)
+		{
+			$queryCatFlag = 1;
+   			$_GET['cat'] = "real estate";
+		}
+		if (count(array_intersect($education, $splitQuery)) > 0)
+		{
+			$queryCatFlag = 1;
+   			$_GET['cat'] = "education";
+		}
+		if (count(array_intersect($cook, $splitQuery)) > 0)
+		{
+			$queryCatFlag = 1;
+   			$_GET['cat'] = "services";
+		}
+		if (count(array_intersect($packers, $splitQuery)) > 0)
+		{
+			$queryCatFlag = 1;
+   			$_GET['cat'] = "packers and movers";
+		}
+		
+		
+		
+		
+		/*look for category in the query.
+		  a little more exhaustive technique.
+		  The final filter. Just in case 
+		  anything had escaped the previous check.
+		  Which I am sure, many would.
+		*/
+		
 		if (in_array('packers', $splitQuery) !== false)
 		{
 			array_push($splitQuery, "packers and movers");
@@ -66,13 +104,11 @@
    		{
    			$queryCatFlag = 1;
    			$match = $match[0];
-   			
    		}
    		
    		
    				
 		//for location based queries 
-		//eg. homes in/near/at chennai
 		if (in_array('at', $splitQuery) !== false)
 		{
 			$locationIndex =  array_search('at', $splitQuery) + 1;
@@ -89,14 +125,15 @@
 			$location = $splitQuery[$locationIndex];
 		}
 		
-		//perform  full text search and sort based on score
-		// '$text' => array('$search' => "\\" . $query . "\\")
-		// add the above line to perform full phrase.
-		//unable to decide if i shud go for it now
-		//a larger dataset would make that clear
-		//if location is set
-		//-1 for descending order
-		//1 for ascending order
+		/*perform  full text search and sort based on score
+		 '$text' => array('$search' => "\\" . $query . "\\")
+		  add the above line to perform full phrase.
+		  unable to decide if i shud go for it now
+		  a larger dataset would make that clear
+		  if location is set
+		  -1 for descending order
+		  1 for ascending order
+		*/
 		
 		if (isset($location))
 		{
@@ -287,8 +324,7 @@
 		echo "</div>" . "\n";	
 		
 		
-		//search box.
-		//saves of lot of time now, uh? :D
+		//search box
 		echo '<div class = "row search">' . "\n";
 		echo '<div class = "col-md-8 col-md-offset-3">' . "\n";
 		echo '
@@ -302,7 +338,7 @@
 		
 		
 		
-		//side pane for displaying categories
+		//side pane for categories
 		echo '<div class = "row">' . "\n";
 		echo '<div class = "col-md-2 col-md-offset-1 sidePane">' . "\n";
 		echo "<div class = 'sidePane'><span class = 'cat'>Category:" . "</span><br>" . "</div>" . "<br>" . "\n";
@@ -313,10 +349,9 @@
    				echo '<a href = "?cat=' . $categoriesResult['name'] . '&query=' . $query . '"> ' . $categoriesResult['name'] 
 							. '</a><br>';
    			}
-   		echo "</div>" . "\n";	
-		
-		
+   		echo "</div>" . "\n";		
 		echo '<div class = "col-md-8">' . "\n";
+		
 		//iterate over the result set
 		
 		//empty results message
@@ -324,15 +359,17 @@
 		{
 			echo "No results found.";
 		}
-
-		//Iterate over each result returned
-		//and display as individual rows.
 		
 		foreach($result as $res)
 		{
 			
-			//more of an arbitrary value based on what I perceive from the results
-			//change after seeing results for a larger dataset
+			/*more of an arbitrary value based on what I perceive from the results
+			  change after seeing results for a larger dataset
+			  also, after adding our custom filters,
+			  this threshold can be relaxed a bit to display
+			  little less relevant but matching results.
+			*/
+			
 			if ($res['$score'] >= 0.55)
 			{
 					
@@ -355,6 +392,14 @@
 						$res['rating'] -= 1;
 					}
 				echo "</div>" . "\n";
+				
+				/*Removing the price range category.
+				  Don't feel that it is an essential
+				  thing to display - Siva
+				  @loki, @viki..feel free to uncomment this.
+				  Committing on Github.
+				*/
+				
 				/*
 				echo "<div class = 'resultRange'>";
 					switch($res['range'])
@@ -370,6 +415,7 @@
 					echo "Price range:&nbsp;&nbsp;&nbsp;&nbsp;" . $correctedRange;
 				echo "</div>" . "\n";
 				*/
+				
 				echo "<div class = 'resultPhone'>";
 					echo "Contact:&nbsp;&nbsp;&nbsp;&nbsp;<a href = 'tel:" . $res['phone'] .
 								 "'>" . $res['phone'] . "</a>";
