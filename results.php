@@ -9,7 +9,7 @@
 	<?php		
 		
 		//debug flag
-		$debug = 0;
+		$debug = 1;
 		if($debug == 1)
 		{
 			echo "Debug mode. Assign 0 to the variable \$debug
@@ -415,11 +415,18 @@
 					}
 				}
 			}
-			echo "<br>Displaying ads in this category.";
 			if($result -> count() == 0)
 			{
-				$result = $collection -> find(
-					   array('category' => $_GET['cat']));
+				if (isset($_GET['cat']))
+				{
+					echo "<br>Displaying ads in this category.";
+					$result = $collection -> find(
+					   	array('category' => $_GET['cat']));
+				}
+				else
+				{
+					//i dont think anything is needed here. should wait n see.
+				}
 			}
 		}	
 		
