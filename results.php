@@ -9,7 +9,7 @@
 	<?php		
 		
 		//debug flag
-		$debug = 1;
+		$debug = 0;
 		if($debug == 1)
 		{
 			echo "Debug mode. Assign 0 to the variable \$debug
@@ -33,6 +33,7 @@
 
 		
 		//split the query for further operations
+		$query = strtolower($query);
 		$splitQuery = explode(" ", $query);
 		
 		/*custom stop words to overcome
@@ -60,6 +61,16 @@
 		$realEstate = array("land", "plot", "CMDA", "cmda", "home", "house");
 		$dining = array("dining", "hotel", "food", "restaurants", "restaurant", "eat", "dine");
 		
+		/* I dont think anyone will ever run a query like
+		   "find me a costly hotel. @loki, @viki..add more if
+		   you feel otherwise.
+		*/
+		
+		$cheap = array("cheap");
+		if (count(array_intersect($cheap, $splitQuery)) > 0)
+		{
+			$cheapFlag = 1;
+		}
 		
 		if (count(array_intersect($education, $splitQuery)) > 1)
 		{
@@ -302,6 +313,11 @@
 			}
 		}
 		
+		if(isset($cheapFlag))
+		{
+			$result -> sort(array('range' => 1));
+		}
+		
 		//sorting links
 		echo '<div class = "row">' . "\n";
 		echo '<div class = "col-md-8 col-md-offset-3">' . "\n";
@@ -530,3 +546,4 @@
 		?>
 </body>
 </html>
+
